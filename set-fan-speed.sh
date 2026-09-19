@@ -1,32 +1,36 @@
 #!/bin/bash
 
 
-# Checks to make sure .env file exists, then imports the variables. 
+# Checks to make sure .env exists
 ENV_FILE="$(dirname "$0")/.env"
 if [ ! -f "$ENV_FILE" ]; then
 	echo "Missing .env file at $ENV_FILE" >&2
 	exit 1
 fi
+
+# Imports variables from .env
 set -a
 source "$ENV_FILE"
 set +a
 
 # Get $OPTION
 usage() {
-        echo "Usage: $0 [-p | -m | -s | -a]"
+        echo "Usage: $0 [-h | -p | -m | -s | -a]"
+        echo "  -h  Show this help message"
         echo "  -p  Disable third-party PCIe response"
         echo "  -m  Enable manual fan management"
         echo "  -s  Set fans to slow (20%)"
         echo "  -a  Revert to automatic fan management"
-        exit 1
+        exit "${1:-1}"
 }
 
-while getopts "pmsa" opt; do
+while getopts "hpmsa" opt; do
         if [ -n "$OPTION" ]; then
                 echo "Error: only one flag may be specified at a time" >&2
                 usage
         fi
         case "$opt" in
+                h) usage 0 ;;
                 p) OPTION=1 ;;
                 m) OPTION=2 ;;
                 s) OPTION=3 ;;
